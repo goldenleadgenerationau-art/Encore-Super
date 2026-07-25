@@ -74,13 +74,18 @@ function PlanSelector({
   )
 }
 
-function SquareCheckoutForm({ billingInterval }: { billingInterval: BillingInterval }) {
+function SquareCheckoutForm({
+  billingInterval,
+  onSuccess,
+}: {
+  billingInterval: BillingInterval
+  onSuccess: () => void
+}) {
   const { refresh } = useAccess()
   const cardRef = useRef<SquareCard | null>(null)
   const [cardReady, setCardReady] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -126,17 +131,13 @@ function SquareCheckoutForm({ billingInterval }: { billingInterval: BillingInter
         setSubmitting(false)
         return
       }
-      setSuccess(true)
       await refresh()
+      onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Checkout failed')
     } finally {
       setSubmitting(false)
     }
-  }
-
-  if (success) {
-    return <p className="mt-6 text-sm text-copper-300">Subscribed — full access is now unlocked.</p>
   }
 
   return (
@@ -172,6 +173,7 @@ export function Pricing() {
   const { user } = useAuth()
   const { hasFullAccess, subscriptionStatus } = useAccess()
   const [billingInterval, setBillingInterval] = useState<BillingInterval>('yearly')
+  const [justSubscribed, setJustSubscribed] = useState(false)
 
   return (
     <div className="mx-auto max-w-xl px-6 py-16 text-center">
@@ -198,10 +200,12 @@ export function Pricing() {
         </div>
       ) : hasFullAccess ? (
         <p className="mt-8 text-sm text-copper-300">
-          You already have full access{subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}
+          {justSubscribed
+            ? `Payment successful! You now have full access${subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}`
+            : `You already have full access${subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}`}
         </p>
       ) : (
-        <SquareCheckoutForm billingInterval={billingInterval} />
+        <SquareCheckoutForm billingInterval={billingInterval} onSuccess={() => setJustSubscribed(true)} />
       )}
 
       <p className="mt-6 text-xs text-plum-400">
