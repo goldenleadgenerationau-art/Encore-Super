@@ -52,8 +52,38 @@ interface SavedBand {
 
 export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const { user } = useAuth()
-  const { hasFullAccess } = useAccess()
-  const usedBefore = useOnceLock('encoreSuper.calculatorUsed')
+  const { hasFullAccess, loading: accessLoading } = useAccess()
+  // Local dev (no Supabase configured) falls back to the old localStorage-only
+  // gate so the free-use flow stays testable without edge functions running.
+  const localOnceLock = useOnceLock('encoreSuper.calculatorUsed')
+  const [serverChecking, setServerChecking] = useState(isSupabaseConfigured)
+  const [serverUsedBefore, setServerUsedBefore] = useState(false)
+
+  useEffect(() => {
+    if (isLocalMode || accessLoading || hasFullAccess) {
+      setServerChecking(false)
+      return
+    }
+    let cancelled = false
+    supabase.functions
+      .invoke('check-free-use', { body: { feature: 'calculator' } })
+      .then(({ data }) => {
+        if (cancelled) return
+        setServerUsedBefore(!(data?.allowed ?? true))
+        setServerChecking(false)
+      })
+      .catch(() => {
+        if (cancelled) return
+        setServerUsedBefore(false)
+        setServerChecking(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [accessLoading, hasFullAccess])
+
+  const checkingFreeUse = !isLocalMode && !hasFullAccess && serverChecking
+  const usedBefore = isLocalMode ? localOnceLock : serverUsedBefore
   const [totalFee, setTotalFee] = useState('600')
   const [gstMode, setGstMode] = useState<GstMode>('none')
   const [nonLabourAmount, setNonLabourAmount] = useState('0')
@@ -244,6 +274,18 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     }
 
     downloadCsv(`encore-super-gig-${paydayDate}.csv`, header, rows)
+  }
+
+  if (checkingFreeUse) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-14">
+        <h1 className="font-display text-3xl text-plum-200 sm:text-4xl">Gig Super Calculator</h1>
+        <p className="mt-3 max-w-2xl text-plum-400">
+          Work out the super guarantee owed on a specific booking — built around how live
+          performance fees actually work, not a generic payroll calculator.
+        </p>
+      </div>
+    )
   }
 
   if (usedBefore && !hasFullAccess) {
