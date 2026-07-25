@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-plum-950: #150f1c;
+  --color-plum-900: #1d1526;
+  --color-plum-800: #271c33;
+  --color-plum-700: #342541;
+  --color-plum-600: #453256;
+  --color-plum-400: #8c7ba0;
+  --color-plum-200: #ddd3e8;
+
+  --color-copper-500: #c9754a;
+  --color-copper-400: #dd9764;
+  --color-copper-300: #eab98c;
+
+  --font-display: 'Georgia', 'Iowan Old Style', serif;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  background: var(--color-plum-950);
+  color: var(--color-plum-200);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100svh;
+}
