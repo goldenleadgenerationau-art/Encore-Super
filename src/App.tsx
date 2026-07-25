@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from 'react-router-dom'
 import type { View } from './types'
+import { routeMetaForPath, VIEW_TO_PATH } from './lib/seoMeta'
+import { Seo } from './components/Seo'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { Home } from './components/Home'
@@ -13,26 +15,41 @@ import { BandRoster } from './components/BandRoster'
 import { Privacy } from './components/Privacy'
 import { Terms } from './components/Terms'
 
-function App() {
-  const [view, setView] = useState<View>('home')
+function AppRoutes() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const meta = routeMetaForPath(location.pathname)
+  const setView = (v: View) => navigate(VIEW_TO_PATH[v])
 
   return (
     <div className="flex min-h-svh flex-col">
-      <Header view={view} setView={setView} />
+      <Seo meta={meta} />
+      <Header view={meta.view} setView={setView} />
       <main className="flex-1">
-        {view === 'home' && <Home setView={setView} />}
-        {view === 'calculator' && <GigCalculator setView={setView} />}
-        {view === 'deadline' && <PaydayDeadline setView={setView} />}
-        {view === 'coverage' && <CoverageCheck setView={setView} />}
-        {view === 'scenarios' && <Scenarios />}
-        {view === 'rules' && <RulesExplained setView={setView} />}
-        {view === 'pricing' && <Pricing />}
-        {view === 'roster' && <BandRoster />}
-        {view === 'privacy' && <Privacy />}
-        {view === 'terms' && <Terms />}
+        <Routes>
+          <Route path="/" element={<Home setView={setView} />} />
+          <Route path="/gig-calculator" element={<GigCalculator setView={setView} />} />
+          <Route path="/payday-deadline-tracker" element={<PaydayDeadline setView={setView} />} />
+          <Route path="/am-i-covered" element={<CoverageCheck setView={setView} />} />
+          <Route path="/scenarios" element={<Scenarios />} />
+          <Route path="/rules-explained" element={<RulesExplained setView={setView} />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/band-roster" element={<BandRoster />} />
+          <Route path="/privacy-policy" element={<Privacy />} />
+          <Route path="/terms-of-service" element={<Terms />} />
+          <Route path="*" element={<Home setView={setView} />} />
+        </Routes>
       </main>
       <Footer setView={setView} />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 

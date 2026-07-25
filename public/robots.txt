@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /pricing
+Disallow: /band-roster
+
+Sitemap: https://encoresuper.com.au/sitemap.xml
