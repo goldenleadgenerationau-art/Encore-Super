@@ -62,7 +62,7 @@ export function Header({ view, setView }: { view: View; setView: (v: View) => vo
             onClick={() => setView('pricing')}
             className="rounded-full bg-gradient-to-b from-copper-400 to-copper-500 px-4 py-2 text-sm font-semibold text-plum-950 shadow-lg shadow-copper-500/20 transition-transform hover:scale-[1.03]"
           >
-            Get full access — from $99/yr
+            Get full access — from $12.99/mo
           </button>
         </div>
       </div>
