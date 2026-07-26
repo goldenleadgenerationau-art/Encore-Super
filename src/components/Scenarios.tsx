@@ -34,7 +34,7 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
                 <div className="mt-4 rounded-xl border border-dashed border-plum-600 p-4 text-sm text-plum-400">
                   Who owes super and the full breakdown for this scenario are part of full access.{' '}
                   <button onClick={() => setView('pricing')} className="text-copper-400 hover:underline">
-                    See plans — from $99/year
+                    See plans — from $12.99/mo
                   </button>
                 </div>
               ) : (

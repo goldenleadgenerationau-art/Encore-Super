@@ -19,7 +19,7 @@ export function Paywall({
         onClick={() => setView('pricing')}
         className="mt-6 w-full rounded-full bg-gradient-to-b from-copper-400 to-copper-500 px-6 py-3 font-semibold text-plum-950 shadow-lg shadow-copper-500/20 transition-transform hover:scale-[1.01]"
       >
-        See plans — from $99/year
+        See plans — from $12.99/mo
       </button>
     </Card>
   )
