@@ -44,6 +44,7 @@ export interface GigInput {
   paidAs: PaidAs
   perspective: Perspective
   bandContractWith?: BandContractWith
+  bandleaderShare?: number // only used when bandContractWith === 'bandleaderBusiness' — the bandleader's own personal cut of the lump sum, which is all that's superable from the payer's side
   bandMemberCount: number
   bandCustomShares?: number[] // per-member wage $, only used when the split isn't even
   bandMemberNames?: string[] // optional, pulled from a saved band roster

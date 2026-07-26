@@ -54,8 +54,6 @@ export function calculateGig(input: GigInput): GigResult {
     )
   }
 
-  const superOwed = likelyLiable ? labourComponent * SG_RATE : 0
-
   // A venue's own obligation genuinely stops at the bandleader when the
   // booking contract is only with the bandleader's business — the rest of
   // the band becomes the bandleader's problem to sort out, not the
@@ -64,6 +62,16 @@ export function calculateGig(input: GigInput): GigResult {
     input.paidAs === 'bandRepresentative' &&
     input.perspective === 'payer' &&
     input.bandContractWith === 'bandleaderBusiness'
+
+  // In bandleaderOnly mode, only the bandleader's own personal cut of the
+  // lump sum is superable — the rest is money passing through to the other
+  // members, not the bandleader's own earnings, so it doesn't belong in
+  // THIS super calculation (same principle as the itemised invoice
+  // examples: only what's actually attributable to the person you're
+  // paying counts, not amounts they collect on someone else's behalf).
+  const bandleaderShare = Math.min(Math.max(0, input.bandleaderShare ?? 0), labourComponent)
+  const superableAmount = bandleaderOnly ? bandleaderShare : labourComponent
+  const superOwed = likelyLiable ? superableAmount * SG_RATE : 0
 
   let perMember: GigResult['perMember'] = null
   if (input.paidAs === 'bandRepresentative' && input.bandMemberCount > 1 && likelyLiable && !bandleaderOnly) {
@@ -105,7 +113,10 @@ export function calculateGig(input: GigInput): GigResult {
 
   if (bandleaderOnly && likelyLiable) {
     notes.push(
-      "Because your booking contract is with the bandleader's own business — not the whole band — your super obligation is generally limited to the amount attributable to the bandleader as an individual, calculated above. The bandleader then becomes responsible, as the one engaging the rest of the band, for paying their super out of what they're paid — that part isn't covered by this calculation."
+      `Because your booking contract is with the bandleader's own business — not the whole band — your super obligation is generally limited to the bandleader's own share of the fee (${bandleaderShare.toFixed(2)}), not the full amount you're paying out. The rest is money the bandleader passes on to the other members, not their own earnings.`
+    )
+    notes.push(
+      "The bandleader then becomes responsible, as the one engaging the rest of the band, for paying their super out of what they're paid — that part isn't covered by this calculation."
     )
     notes.push(
       "Get this contract structure confirmed in writing before the gig. If the booking is later treated as being with the whole band rather than just the bandleader's business, your liability could extend to the other members' super too."

@@ -90,6 +90,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const [perspective, setPerspective] = useState<Perspective>('performer')
   const [paidAs, setPaidAs] = useState<PaidAs>('individual')
   const [bandContractWith, setBandContractWith] = useState<BandContractWith>('wholeBand')
+  const [bandleaderShareInput, setBandleaderShareInput] = useState('')
   const [bandMemberCount, setBandMemberCount] = useState('4')
   const [paydayDate, setPaydayDate] = useState(todayIso())
   const [splitMode, setSplitMode] = useState<'even' | 'custom'>('even')
@@ -104,6 +105,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const labourComponent = Math.max(0, feeExGst - (Number(nonLabourAmount) || 0))
   const memberCount = Math.min(MAX_BAND_MEMBERS, Math.max(1, Number(bandMemberCount) || 1))
   const bandleaderOnly = perspective === 'payer' && bandContractWith === 'bandleaderBusiness'
+  const bandleaderShareAmount = Math.min(Math.max(0, Number(bandleaderShareInput) || 0), labourComponent)
   const remainingToAllocate = Math.max(
     0,
     labourComponent - customShares.reduce((sum, s) => sum + (Number(s) || 0), 0)
@@ -179,6 +181,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       paidAs,
       perspective,
       bandContractWith: perspective === 'payer' ? bandContractWith : undefined,
+      bandleaderShare: bandleaderOnly ? bandleaderShareAmount : undefined,
       bandMemberCount: memberCount,
       bandCustomShares:
         splitMode === 'custom' ? customShares.map((s) => Number(s) || 0) : undefined,
@@ -192,6 +195,8 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       paidAs,
       perspective,
       bandContractWith,
+      bandleaderOnly,
+      bandleaderShareAmount,
       memberCount,
       paydayDate,
       splitMode,
@@ -451,6 +456,29 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
             </div>
           )}
 
+          {bandleaderOnly && (
+            <div>
+              <label className="block text-sm font-medium text-plum-200">
+                Of the {currency.format(labourComponent)} fee, how much is the bandleader's own personal
+                share?
+              </label>
+              <input
+                type="number"
+                min="0"
+                max={labourComponent}
+                placeholder="0.00"
+                value={bandleaderShareInput}
+                onChange={(e) => setBandleaderShareInput(e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
+              />
+              <p className="mt-1.5 text-xs text-plum-400">
+                The rest ({currency.format(Math.max(0, labourComponent - bandleaderShareAmount))}) is money
+                the bandleader passes on to the other band members — only their own share is superable on
+                your side.
+              </p>
+            </div>
+          )}
+
           {paidAs === 'bandRepresentative' && !bandleaderOnly && (
             <div className="space-y-4">
               <div>
@@ -563,7 +591,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
               {currency.format(result.superOwed)}
             </p>
             <p className="mt-2 text-sm text-plum-400">
-              on a labour component of {currency.format(result.labourComponent)}, at 12%
+              {bandleaderOnly
+                ? `on the bandleader's own share of ${currency.format(bandleaderShareAmount)}, at 12%`
+                : `on a labour component of ${currency.format(result.labourComponent)}, at 12%`}
             </p>
             {result.gstAmount > 0.01 && (
               <p className="mt-1 text-xs text-plum-400">
@@ -597,10 +627,37 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
               </div>
             )}
 
-            {!result.perMember && (
+            {!result.perMember && bandleaderOnly && (
+              <div className="mt-5 border-t border-plum-700 pt-4">
+                <p className="text-sm font-medium text-plum-200">The bandleader's breakdown</p>
+                <div className="mt-2 divide-y divide-plum-700/60 rounded-lg border border-plum-700">
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                    <span className="text-plum-200">Whole fee paid</span>
+                    <span className="text-plum-200">{currency.format(result.labourComponent)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                    <span className="text-plum-200">
+                      Bandleader's own share
+                      <span className="ml-2 text-xs text-plum-400">(superable)</span>
+                    </span>
+                    <span className="text-plum-200">{currency.format(bandleaderShareAmount)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 bg-copper-400/5 px-3 py-2 text-sm">
+                    <span className="text-copper-300">Superannuation guarantee (12%)</span>
+                    <span className="text-copper-300">{currency.format(result.superOwed)}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-semibold">
+                    <span className="text-plum-100">Total cost</span>
+                    <span className="text-copper-300">{currency.format(result.labourComponent + result.superOwed)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {!result.perMember && !bandleaderOnly && (
               <div className="mt-5 border-t border-plum-700 pt-4">
                 <p className="text-sm font-medium text-plum-200">
-                  {bandleaderOnly ? "The bandleader's breakdown" : perspective === 'payer' ? 'What you owe' : 'Your breakdown'}
+                  {perspective === 'payer' ? 'What you owe' : 'Your breakdown'}
                 </p>
                 <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-plum-400">
                   <span>Fee (labour)</span>
