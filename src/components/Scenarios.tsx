@@ -1,7 +1,11 @@
 import { scenarios } from '../data/scenarios'
+import { invoiceExamples } from '../data/invoiceExamples'
 import { Card, PremiumBadge } from './ui/Badge'
+import { Paywall } from './ui/Paywall'
 import { useAccess } from '../context/AccessContext'
 import type { View } from '../types'
+
+const currency = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' })
 
 export function Scenarios({ setView }: { setView: (v: View) => void }) {
   const { hasFullAccess } = useAccess()
@@ -51,6 +55,57 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
             </Card>
           )
         })}
+      </div>
+
+      <div className="mt-14">
+        <h2 className="font-display text-2xl text-plum-100">Example itemised invoices</h2>
+        <p className="mt-2 max-w-2xl text-sm text-plum-400">
+          What a properly itemised invoice actually looks like — so it's clear what counts as
+          labour for super, and what doesn't.
+        </p>
+
+        {!hasFullAccess ? (
+          <div className="mt-6">
+            <Paywall
+              title="Itemised invoice examples, unlocked with a subscription"
+              body="Real worked examples for a solo performer, a band invoicing as a group, and what a venue should ask for before paying — for subscribers."
+              setView={setView}
+            />
+          </div>
+        ) : (
+          <div className="mt-6 space-y-5">
+            {invoiceExamples.map((ex) => {
+              const total = ex.lines.reduce((sum, l) => sum + l.amount, 0)
+              return (
+                <Card key={ex.id}>
+                  <p className="text-xs font-medium uppercase tracking-[0.2em] text-copper-400">{ex.audience}</p>
+                  <h3 className="mt-1 font-display text-lg text-plum-100">{ex.title}</h3>
+                  <p className="mt-2 text-sm text-plum-400">{ex.context}</p>
+
+                  <div className="mt-4 divide-y divide-plum-700/60 rounded-lg border border-plum-700">
+                    {ex.lines.map((line, i) => (
+                      <div key={i} className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                        <span className="text-plum-200">
+                          {line.description}
+                          {line.superable === false && (
+                            <span className="ml-2 text-xs text-plum-400">(not superable)</span>
+                          )}
+                        </span>
+                        <span className="shrink-0 text-plum-200">{currency.format(line.amount)}</span>
+                      </div>
+                    ))}
+                    <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-medium">
+                      <span className="text-plum-100">Total</span>
+                      <span className="text-copper-300">{currency.format(total)}</span>
+                    </div>
+                  </div>
+
+                  <p className="mt-3 text-sm text-plum-400">{ex.closingNote}</p>
+                </Card>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )
