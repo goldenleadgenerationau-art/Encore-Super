@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import type { GigInput, GstMode, PaidAs, View } from '../types'
+import type { BandContractWith, GigInput, GstMode, PaidAs, Perspective, View } from '../types'
 import { calculateGig, GST_RATE } from '../lib/gigCalculator'
 import { formatAuDate } from '../lib/businessDays'
 import { Card } from './ui/Badge'
@@ -87,7 +87,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const [totalFee, setTotalFee] = useState('600')
   const [gstMode, setGstMode] = useState<GstMode>('none')
   const [nonLabourAmount, setNonLabourAmount] = useState('0')
+  const [perspective, setPerspective] = useState<Perspective>('performer')
   const [paidAs, setPaidAs] = useState<PaidAs>('individual')
+  const [bandContractWith, setBandContractWith] = useState<BandContractWith>('wholeBand')
   const [bandMemberCount, setBandMemberCount] = useState('4')
   const [paydayDate, setPaydayDate] = useState(todayIso())
   const [splitMode, setSplitMode] = useState<'even' | 'custom'>('even')
@@ -101,6 +103,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const gstAmount = gstMode === 'exclusive' ? (Number(totalFee) || 0) * GST_RATE : gstMode === 'inclusive' ? (Number(totalFee) || 0) - feeExGst : 0
   const labourComponent = Math.max(0, feeExGst - (Number(nonLabourAmount) || 0))
   const memberCount = Math.min(MAX_BAND_MEMBERS, Math.max(1, Number(bandMemberCount) || 1))
+  const bandleaderOnly = perspective === 'payer' && bandContractWith === 'bandleaderBusiness'
   const remainingToAllocate = Math.max(
     0,
     labourComponent - customShares.reduce((sum, s) => sum + (Number(s) || 0), 0)
@@ -174,13 +177,27 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       gstMode,
       nonLabourAmount: Number(nonLabourAmount) || 0,
       paidAs,
+      perspective,
+      bandContractWith: perspective === 'payer' ? bandContractWith : undefined,
       bandMemberCount: memberCount,
       bandCustomShares:
         splitMode === 'custom' ? customShares.map((s) => Number(s) || 0) : undefined,
       bandMemberNames: splitMode === 'custom' ? customNames : undefined,
       paydayDate,
     }),
-    [totalFee, gstMode, nonLabourAmount, paidAs, memberCount, paydayDate, splitMode, customShares, customNames]
+    [
+      totalFee,
+      gstMode,
+      nonLabourAmount,
+      paidAs,
+      perspective,
+      bandContractWith,
+      memberCount,
+      paydayDate,
+      splitMode,
+      customShares,
+      customNames,
+    ]
   )
 
   const result = useMemo(() => calculateGig(input), [input])
@@ -318,6 +335,34 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <Card className="space-y-6">
           <div>
+            <label className="block text-sm font-medium text-plum-200">I'm filling this in as…</label>
+            <div className="mt-1.5 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => setPerspective('performer')}
+                className={`rounded-full px-3.5 py-1.5 text-sm ${
+                  perspective === 'performer'
+                    ? 'bg-plum-700 text-copper-300'
+                    : 'border border-plum-600 text-plum-400'
+                }`}
+              >
+                The performer / band
+              </button>
+              <button
+                type="button"
+                onClick={() => setPerspective('payer')}
+                className={`rounded-full px-3.5 py-1.5 text-sm ${
+                  perspective === 'payer'
+                    ? 'bg-plum-700 text-copper-300'
+                    : 'border border-plum-600 text-plum-400'
+                }`}
+              >
+                The venue / booker paying someone
+              </button>
+            </div>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-plum-200">Total gig fee (AUD)</label>
             <input
               type="number"
@@ -368,13 +413,45 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
               onChange={(e) => setPaidAs(e.target.value as PaidAs)}
               className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
             >
-              <option value="individual">Paid to me as an individual (including sole trader / ABN)</option>
-              <option value="bandRepresentative">Paid to me as a lump sum for the whole band</option>
-              <option value="ownCompany">Paid to my own Pty Ltd company</option>
+              {perspective === 'payer' ? (
+                <>
+                  <option value="individual">Paid to the performer as an individual (incl. sole trader / ABN)</option>
+                  <option value="bandRepresentative">Lump sum paid to one band member (e.g. bandleader) for the whole band</option>
+                  <option value="ownCompany">Paid to the performer's own Pty Ltd company</option>
+                </>
+              ) : (
+                <>
+                  <option value="individual">Paid to me as an individual (including sole trader / ABN)</option>
+                  <option value="bandRepresentative">Paid to me as a lump sum for the whole band</option>
+                  <option value="ownCompany">Paid to my own Pty Ltd company</option>
+                </>
+              )}
             </select>
           </div>
 
-          {paidAs === 'bandRepresentative' && (
+          {paidAs === 'bandRepresentative' && perspective === 'payer' && (
+            <div>
+              <label className="block text-sm font-medium text-plum-200">
+                Is your booking contract with the whole band, or just with the bandleader's business?
+              </label>
+              <select
+                value={bandContractWith}
+                onChange={(e) => setBandContractWith(e.target.value as BandContractWith)}
+                className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
+              >
+                <option value="wholeBand">The whole band — named as the act, or as individual members</option>
+                <option value="bandleaderBusiness">
+                  Just the bandleader's own business — they arrange the rest of the band themselves
+                </option>
+              </select>
+              <p className="mt-1.5 text-xs text-plum-400">
+                This changes what you're calculated as owing: super across the whole band, or just the
+                amount attributable to the bandleader.
+              </p>
+            </div>
+          )}
+
+          {paidAs === 'bandRepresentative' && !bandleaderOnly && (
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-plum-200">Number of band members sharing the fee</label>
@@ -522,7 +599,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
 
             {!result.perMember && (
               <div className="mt-5 border-t border-plum-700 pt-4">
-                <p className="text-sm font-medium text-plum-200">Your breakdown</p>
+                <p className="text-sm font-medium text-plum-200">
+                  {bandleaderOnly ? "The bandleader's breakdown" : perspective === 'payer' ? 'What you owe' : 'Your breakdown'}
+                </p>
                 <div className="mt-2 grid grid-cols-3 gap-2 text-xs text-plum-400">
                   <span>Fee (labour)</span>
                   <span className="text-right">Super (+12%)</span>

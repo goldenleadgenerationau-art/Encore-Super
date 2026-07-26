@@ -56,8 +56,17 @@ export function calculateGig(input: GigInput): GigResult {
 
   const superOwed = likelyLiable ? labourComponent * SG_RATE : 0
 
+  // A venue's own obligation genuinely stops at the bandleader when the
+  // booking contract is only with the bandleader's business — the rest of
+  // the band becomes the bandleader's problem to sort out, not the
+  // venue's. See the BandContractWith type for the full reasoning.
+  const bandleaderOnly =
+    input.paidAs === 'bandRepresentative' &&
+    input.perspective === 'payer' &&
+    input.bandContractWith === 'bandleaderBusiness'
+
   let perMember: GigResult['perMember'] = null
-  if (input.paidAs === 'bandRepresentative' && input.bandMemberCount > 1 && likelyLiable) {
+  if (input.paidAs === 'bandRepresentative' && input.bandMemberCount > 1 && likelyLiable && !bandleaderOnly) {
     const usingCustomShares =
       input.bandCustomShares && input.bandCustomShares.length === input.bandMemberCount
 
@@ -79,14 +88,28 @@ export function calculateGig(input: GigInput): GigResult {
           `The per-member wages you entered add up to ${enteredTotal.toFixed(2)}, but the labour component of the fee is ${labourComponent.toFixed(2)} — double-check the split.`
         )
       }
+    }
+
+    if (input.perspective === 'payer') {
       notes.push(
-        "As the person collecting the lump sum for the band, you generally become the one responsible for paying super into each band member's fund, on top of their wage."
+        "As the venue, your obligation is to make sure super lands in every band member's fund, on top of their wage — how the lump sum itself gets divided between members is between the band, typically administered by whoever collects it (e.g. the bandleader)."
       )
     } else {
       notes.push(
-        `As the person collecting the lump sum for the band, you generally become the one responsible for paying super into each band member's fund, on top of their wage — split evenly here across ${input.bandMemberCount} members as a starting point. Switch to a custom split if members don't share the fee evenly.`
+        usingCustomShares
+          ? "As the person collecting the lump sum for the band, you generally become the one responsible for paying super into each band member's fund, on top of their wage."
+          : `As the person collecting the lump sum for the band, you generally become the one responsible for paying super into each band member's fund, on top of their wage — split evenly here across ${input.bandMemberCount} members as a starting point. Switch to a custom split if members don't share the fee evenly.`
       )
     }
+  }
+
+  if (bandleaderOnly && likelyLiable) {
+    notes.push(
+      "Because your booking contract is with the bandleader's own business — not the whole band — your super obligation is generally limited to the amount attributable to the bandleader as an individual, calculated above. The bandleader then becomes responsible, as the one engaging the rest of the band, for paying their super out of what they're paid — that part isn't covered by this calculation."
+    )
+    notes.push(
+      "Get this contract structure confirmed in writing before the gig. If the booking is later treated as being with the whole band rather than just the bandleader's business, your liability could extend to the other members' super too."
+    )
   }
 
   const paydayDate = input.paydayDate ? new Date(input.paydayDate) : new Date()
