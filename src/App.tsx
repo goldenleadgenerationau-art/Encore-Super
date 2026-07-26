@@ -31,7 +31,7 @@ function AppRoutes() {
           <Route path="/gig-calculator" element={<GigCalculator setView={setView} />} />
           <Route path="/payday-deadline-tracker" element={<PaydayDeadline setView={setView} />} />
           <Route path="/am-i-covered" element={<CoverageCheck setView={setView} />} />
-          <Route path="/scenarios" element={<Scenarios />} />
+          <Route path="/scenarios" element={<Scenarios setView={setView} />} />
           <Route path="/rules-explained" element={<RulesExplained setView={setView} />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/band-roster" element={<BandRoster />} />

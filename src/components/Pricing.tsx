@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { useAccess } from '../context/AccessContext'
 import { supabase } from '../lib/supabaseClient'
 import { loadSquareSdk } from '../lib/loadSquareSdk'
+import { extractFunctionError } from '../lib/functionError'
 import { AuthForm } from './AuthForm'
 
 type BillingInterval = 'monthly' | 'yearly'
@@ -126,8 +127,13 @@ function SquareCheckoutForm({
       const { data, error: fnError } = await supabase.functions.invoke('square-checkout', {
         body: { sourceId: result.token, billingInterval },
       })
-      if (fnError || data?.error) {
-        setError(data?.error ?? fnError?.message ?? 'Checkout failed')
+      if (fnError) {
+        setError(await extractFunctionError(fnError, 'Checkout failed'))
+        setSubmitting(false)
+        return
+      }
+      if (data?.error) {
+        setError(data.error)
         setSubmitting(false)
         return
       }
@@ -169,6 +175,78 @@ function SquareCheckoutForm({
   )
 }
 
+function ManageSubscription() {
+  const { subscriptionStatus, cancelAtPeriodEnd, currentPeriodEnd, cancelSubscription } = useAccess()
+  const [confirming, setConfirming] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
+
+  const formattedEnd = currentPeriodEnd
+    ? new Date(currentPeriodEnd).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    : null
+
+  if (cancelAtPeriodEnd || done) {
+    return (
+      <p className="mt-8 text-sm text-copper-300">
+        Your subscription is cancelled and won't renew
+        {formattedEnd ? ` — you'll keep full access until ${formattedEnd}.` : '.'}
+      </p>
+    )
+  }
+
+  async function handleCancel() {
+    setCancelling(true)
+    setError(null)
+    const { error } = await cancelSubscription()
+    setCancelling(false)
+    if (error) {
+      setError(error)
+      return
+    }
+    setDone(true)
+  }
+
+  return (
+    <div className="mt-8">
+      <p className="text-sm text-copper-300">
+        You already have full access{subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}
+      </p>
+      {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
+      {confirming ? (
+        <div className="mt-4 rounded-xl border border-dashed border-plum-600 p-4">
+          <p className="text-sm text-plum-200">
+            Cancel your subscription? You'll keep full access until the end of the current billing
+            period, then it won't renew.
+          </p>
+          <div className="mt-3 flex justify-center gap-3">
+            <button
+              onClick={() => setConfirming(false)}
+              className="rounded-full border border-plum-600 px-4 py-1.5 text-sm text-plum-200 hover:border-copper-400"
+            >
+              Never mind
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={cancelling}
+              className="rounded-full bg-red-500/90 px-4 py-1.5 text-sm font-medium text-plum-950 hover:bg-red-500 disabled:opacity-60"
+            >
+              {cancelling ? 'Cancelling…' : 'Yes, cancel'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setConfirming(true)}
+          className="mt-3 text-sm text-plum-400 hover:text-red-400 hover:underline"
+        >
+          Cancel subscription
+        </button>
+      )}
+    </div>
+  )
+}
+
 export function Pricing() {
   const { user } = useAuth()
   const { hasFullAccess, subscriptionStatus } = useAccess()
@@ -199,11 +277,13 @@ export function Pricing() {
           <AuthForm prompt="Sign in (or create an account) to subscribe." />
         </div>
       ) : hasFullAccess ? (
-        <p className="mt-8 text-sm text-copper-300">
-          {justSubscribed
-            ? `Payment successful! You now have full access${subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}`
-            : `You already have full access${subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}`}
-        </p>
+        justSubscribed ? (
+          <p className="mt-8 text-sm text-copper-300">
+            {`Payment successful! You now have full access${subscriptionStatus === 'ACTIVE' ? ' — subscription active.' : '.'}`}
+          </p>
+        ) : (
+          <ManageSubscription />
+        )
       ) : (
         <SquareCheckoutForm billingInterval={billingInterval} onSuccess={() => setJustSubscribed(true)} />
       )}
