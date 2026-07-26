@@ -6,6 +6,15 @@ import type { GigInput, GigResult } from '../types'
 export const SG_RATE = 0.12
 export const GST_RATE = 0.1
 
+// Rounds to the nearest cent. Every monetary value below is rounded at the
+// point it's computed, before it's ever combined into a displayed total —
+// otherwise a line like "$545.45 + $65.45" can display a "Total" of $610.91
+// (computed from the unrounded $65.454545...) instead of the $610.90 the
+// two rounded figures shown actually add up to.
+function round2(n: number): number {
+  return Math.round(n * 100) / 100
+}
+
 // Super guarantee is calculated on the GST-EXCLUSIVE value of a fee — GST collected
 // on an invoice isn't part of a contractor's earnings for super purposes.
 // Source: ATO "Super for independent contractors".
@@ -15,10 +24,10 @@ export function calculateGig(input: GigInput): GigResult {
   let feeExGst = input.totalFee
   let gstAmount = 0
   if (input.gstMode === 'inclusive') {
-    feeExGst = input.totalFee / (1 + GST_RATE)
-    gstAmount = input.totalFee - feeExGst
+    feeExGst = round2(input.totalFee / (1 + GST_RATE))
+    gstAmount = round2(input.totalFee - feeExGst)
   } else if (input.gstMode === 'exclusive') {
-    gstAmount = input.totalFee * GST_RATE
+    gstAmount = round2(input.totalFee * GST_RATE)
   }
   const invoiceTotal = feeExGst + gstAmount
 
@@ -29,7 +38,7 @@ export function calculateGig(input: GigInput): GigResult {
   }
 
   const rawLabour = feeExGst - input.nonLabourAmount
-  const labourComponent = Math.max(0, rawLabour)
+  const labourComponent = round2(Math.max(0, rawLabour))
   if (input.nonLabourAmount > feeExGst) {
     notes.push(
       'The non-labour amount you entered is larger than the GST-exclusive fee, so it was capped — check your figures.'
@@ -69,9 +78,9 @@ export function calculateGig(input: GigInput): GigResult {
   // THIS super calculation (same principle as the itemised invoice
   // examples: only what's actually attributable to the person you're
   // paying counts, not amounts they collect on someone else's behalf).
-  const bandleaderShare = Math.min(Math.max(0, input.bandleaderShare ?? 0), labourComponent)
+  const bandleaderShare = round2(Math.min(Math.max(0, input.bandleaderShare ?? 0), labourComponent))
   const superableAmount = bandleaderOnly ? bandleaderShare : labourComponent
-  const superOwed = likelyLiable ? superableAmount * SG_RATE : 0
+  const superOwed = likelyLiable ? round2(superableAmount * SG_RATE) : 0
 
   let perMember: GigResult['perMember'] = null
   if (input.paidAs === 'bandRepresentative' && input.bandMemberCount > 1 && likelyLiable && !bandleaderOnly) {
@@ -79,15 +88,18 @@ export function calculateGig(input: GigInput): GigResult {
       input.bandCustomShares && input.bandCustomShares.length === input.bandMemberCount
 
     const wages = usingCustomShares
-      ? input.bandCustomShares!.map((w) => Math.max(0, w))
-      : Array.from({ length: input.bandMemberCount }, () => labourComponent / input.bandMemberCount)
+      ? input.bandCustomShares!.map((w) => round2(Math.max(0, w)))
+      : Array.from({ length: input.bandMemberCount }, () => round2(labourComponent / input.bandMemberCount))
 
-    perMember = wages.map((wage, i) => ({
-      name: input.bandMemberNames?.[i] || `Member ${i + 1}`,
-      wage,
-      superOwed: wage * SG_RATE,
-      total: wage + wage * SG_RATE,
-    }))
+    perMember = wages.map((wage, i) => {
+      const memberSuper = round2(wage * SG_RATE)
+      return {
+        name: input.bandMemberNames?.[i] || `Member ${i + 1}`,
+        wage,
+        superOwed: memberSuper,
+        total: wage + memberSuper,
+      }
+    })
 
     if (usingCustomShares) {
       const enteredTotal = wages.reduce((sum, w) => sum + w, 0)
