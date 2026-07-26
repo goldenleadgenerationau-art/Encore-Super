@@ -3,6 +3,7 @@ import { invoiceExamples } from '../data/invoiceExamples'
 import { Card, PremiumBadge } from './ui/Badge'
 import { Paywall } from './ui/Paywall'
 import { useAccess } from '../context/AccessContext'
+import { SG_RATE } from '../lib/gigCalculator'
 import type { View } from '../types'
 
 const currency = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' })
@@ -63,6 +64,10 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
           What a properly itemised invoice actually looks like — so it's clear what counts as
           labour for super, and what doesn't.
         </p>
+        <p className="mt-1 max-w-2xl text-xs text-plum-400">
+          These are illustrative examples only, not templates to copy exactly — always check the
+          actual numbers against your own booking.
+        </p>
 
         {!hasFullAccess ? (
           <div className="mt-6">
@@ -75,7 +80,10 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
         ) : (
           <div className="mt-6 space-y-5">
             {invoiceExamples.map((ex) => {
-              const total = ex.lines.reduce((sum, l) => sum + l.amount, 0)
+              const invoiceTotal = ex.lines.reduce((sum, l) => sum + l.amount, 0)
+              const superableAmount = ex.lines.reduce((sum, l) => sum + (l.superable ? l.amount : 0), 0)
+              const superAmount = superableAmount * SG_RATE
+              const totalCost = invoiceTotal + superAmount
               return (
                 <Card key={ex.id}>
                   <p className="text-xs font-medium uppercase tracking-[0.2em] text-copper-400">{ex.audience}</p>
@@ -95,8 +103,19 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
                       </div>
                     ))}
                     <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-medium">
-                      <span className="text-plum-100">Total</span>
-                      <span className="text-copper-300">{currency.format(total)}</span>
+                      <span className="text-plum-100">Invoice total</span>
+                      <span className="text-plum-100">{currency.format(invoiceTotal)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 bg-copper-400/5 px-3 py-2 text-sm">
+                      <span className="text-copper-300">
+                        Superannuation guarantee (12%)
+                        <span className="ml-2 text-xs text-plum-400">(paid to the fund, not on this invoice)</span>
+                      </span>
+                      <span className="shrink-0 text-copper-300">{currency.format(superAmount)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-semibold">
+                      <span className="text-plum-100">Total cost</span>
+                      <span className="text-copper-300">{currency.format(totalCost)}</span>
                     </div>
                   </div>
 
