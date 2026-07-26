@@ -11,6 +11,7 @@ export interface InvoiceExample {
   context: string
   lines: InvoiceLine[]
   closingNote: string
+  gstNote?: string
 }
 
 export const invoiceExamples: InvoiceExample[] = [
@@ -25,15 +26,22 @@ export const invoiceExamples: InvoiceExample[] = [
     ],
     closingNote:
       "Only the $650 performance fee is labour for super purposes — the PA hire is itemised on its own line so it's excluded. The super line below is shown for clarity on the full cost, but it isn't actually paid to the performer along with the invoice — it goes straight into their fund separately.",
+    gstNote:
+      "If you're GST-registered, add 10% GST as its own line on top of the fee — never superable. See the GST line in the venue example below for how that looks.",
   },
   {
     id: 'band-performance',
     title: 'Band performance',
     audience: 'For a bandleader invoicing on behalf of the band',
-    context: 'A 4-piece band plays a 4-hour function for one combined fee, invoiced by the bandleader.',
-    lines: [{ description: 'Band performance fee — 4-hour function, 4 performers', amount: 2000, superable: true }],
+    context: 'A 4-piece band plays a 4-hour function for one combined fee, invoiced by the bandleader under his own ABN.',
+    lines: [
+      { description: 'Alex (bandleader) — performance fee', amount: 600, superable: true },
+      { description: 'Sam, Jordan, Casey — performance fees (collected by Alex, paid on to the band)', amount: 1400, superable: false },
+    ],
     closingNote:
-      "The invoice itself is one lump sum, but it's worth attaching a per-member breakdown for the booker's records — e.g. Alex (bandleader) $600, Sam $500, Jordan $500, Casey $400 — so whoever ends up responsible for super has a clear starting point per person. Who that obligation actually falls to (the venue for the whole band, or just the bandleader) depends on the booking contract — see the lump-sum scenario above. The super line below is shown as one combined figure across the band for clarity; in practice it's paid per member, into each of their own funds.",
+      "Because Alex invoices this under his own ABN, the payer's direct super obligation is generally limited to Alex's own $600 share — not the full $2,000 he then distributes to the rest of the band. Alex becomes responsible for paying Sam, Jordan and Casey's super out of what he pays them, separately from this invoice. Whether the payer's liability instead extends to the whole band depends on how the booking is actually contracted — see the lump-sum scenario above.",
+    gstNote:
+      "If the invoice includes GST, add it as one line on the $2,000 total the same way — never superable. See the venue example below for how a GST line looks.",
   },
   {
     id: 'venue-received',

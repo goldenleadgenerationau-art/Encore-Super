@@ -120,6 +120,12 @@ export function Scenarios({ setView }: { setView: (v: View) => void }) {
                   </div>
 
                   <p className="mt-3 text-sm text-plum-400">{ex.closingNote}</p>
+                  {ex.gstNote && (
+                    <p className="mt-2 border-t border-plum-700/60 pt-2 text-xs text-plum-400">
+                      <span className="font-medium text-plum-200">GST: </span>
+                      {ex.gstNote}
+                    </p>
+                  )}
                 </Card>
               )
             })}
