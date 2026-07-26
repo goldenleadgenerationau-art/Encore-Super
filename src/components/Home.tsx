@@ -51,7 +51,7 @@ export function Home({ setView }: { setView: (v: View) => void }) {
             onClick={() => setView('pricing')}
             className="rounded-full border border-plum-600 px-6 py-3 font-medium text-plum-200 hover:border-copper-400"
           >
-            See full access — from $99/yr
+            See full access — from $12.99/mo
           </button>
         </div>
       </section>
