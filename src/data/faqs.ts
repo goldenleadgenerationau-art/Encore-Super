@@ -11,7 +11,7 @@ export const faqs: Faq[] = [
   {
     id: 'bandleader-pay-band-super',
     question:
-      "I'm a bandleader (registrant) — how do I actually pay super to the rest of the band? Do I need accounting software?",
+      "I'm a bandleader (registrant) — how do I actually pay super to the rest of the band (contractor)? Do I need accounting software?",
     preview: 'No — you can do this for free through a super fund\'s employer portal, no accounting software required.',
     answer: [
       "No, you don't need accounting software. You can register directly with a super fund's employer portal and pay through that.",
