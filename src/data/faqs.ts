@@ -107,6 +107,29 @@ export const faqs: Faq[] = [
     ],
   },
   {
+    id: 'smsf-direct-payment',
+    question: "I've got a self-managed super fund (SMSF) — can't the venue just pay me and I'll deposit it into my SMSF myself?",
+    preview:
+      "No — even with an SMSF, the payer has to send your super guarantee contribution straight to the fund electronically. Money that passes through your own bank account first doesn't count as super at all.",
+    answer: [
+      "Being paid the extra 12% along with your fee, then transferring that amount into your SMSF yourself, doesn't satisfy anyone's super guarantee obligation. A genuine SG contribution has to go directly from the payer to the fund — if it lands in your personal account first, it's legally just wages, and putting it into your SMSF afterwards makes it your own personal contribution (with its own caps), not the payer meeting their obligation. The payer would still owe the super guarantee charge.",
+      "SMSFs have to meet the same electronic requirements as any other fund to receive it. Your SMSF needs a bank account reachable on the New Payments Platform, and an active electronic service address (ESA) — usually set up through an administrator or messaging provider — so the payer can send the contribution and its data together, the same SuperStream-compliant way as any retail or industry fund.",
+      "If your SMSF's ESA isn't active or correctly set up, the payer's contribution can be delayed or rejected — which risks making the payer (not you) liable for the super guarantee charge, and can force them to redirect the payment to your stapled fund or their own default fund instead of your SMSF.",
+      "Practical fix: give payers your SMSF's proper details (ABN, bank account, ESA) upfront, and check your ESA is active before the gig, not after. Save it once in Band Roster so you're not tracking it down every time.",
+      "One exception worth knowing: none of this applies if the payer counts as a 'related party' to your SMSF — for example, paying yourself through your own company for your own gigs. That's treated differently and doesn't need SuperStream. It's not the situation for a typical venue, festival or another act's bandleader paying you, though.",
+    ],
+    sources: [
+      {
+        label: 'ATO — How Payday Super affects SMSFs',
+        url: 'https://www.ato.gov.au/businesses-and-organisations/super-for-employers/managing-superstream/how-payday-super-affects-smsfs',
+      },
+      {
+        label: 'ATO — SuperStream for employers',
+        url: 'https://www.ato.gov.au/businesses-and-organisations/super-for-employers/paying-super-contributions/how-to-pay-super/superstream-for-employers',
+      },
+    ],
+  },
+  {
     id: 'check-super-was-paid',
     question: "How do I actually check whether a gig fee's super was paid, and how long should it take to show up?",
     preview:
