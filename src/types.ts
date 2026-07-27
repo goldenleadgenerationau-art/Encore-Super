@@ -5,6 +5,7 @@ export type View =
   | 'coverage'
   | 'scenarios'
   | 'rules'
+  | 'faq'
   | 'pricing'
   | 'roster'
   | 'privacy'

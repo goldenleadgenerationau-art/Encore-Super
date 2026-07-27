@@ -9,6 +9,7 @@ const NAV: { id: View; label: string }[] = [
   { id: 'coverage', label: 'Am I Covered?' },
   { id: 'scenarios', label: 'Scenarios' },
   { id: 'rules', label: 'Rules Explained' },
+  { id: 'faq', label: 'FAQs' },
   { id: 'roster', label: 'Band Roster' },
 ]
 

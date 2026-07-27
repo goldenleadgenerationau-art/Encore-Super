@@ -58,6 +58,13 @@ export const ROUTES: RouteMeta[] = [
       'Plain-English summaries of section 12(8), the labour/non-labour split, Payday Super deadlines, and penalties for missed super — each linked to its official ATO or Fair Work source.',
   },
   {
+    view: 'faq',
+    path: '/faq',
+    title: 'FAQs — Paying Super to a Band Without Accounting Software | Encore Super',
+    description:
+      'Practical questions musicians actually ask — like how a bandleader pays super to the rest of the band without accounting software, using a free super fund employer portal.',
+  },
+  {
     view: 'pricing',
     path: '/pricing',
     title: 'Pricing — Encore Super',

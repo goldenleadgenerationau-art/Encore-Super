@@ -10,6 +10,7 @@ import { PaydayDeadline } from './components/PaydayDeadline'
 import { CoverageCheck } from './components/CoverageCheck'
 import { Scenarios } from './components/Scenarios'
 import { RulesExplained } from './components/RulesExplained'
+import { Faq } from './components/Faq'
 import { Pricing } from './components/Pricing'
 import { BandRoster } from './components/BandRoster'
 import { Privacy } from './components/Privacy'
@@ -34,6 +35,7 @@ function AppRoutes() {
           <Route path="/am-i-covered" element={<CoverageCheck setView={setView} />} />
           <Route path="/scenarios" element={<Scenarios setView={setView} />} />
           <Route path="/rules-explained" element={<RulesExplained setView={setView} />} />
+          <Route path="/faq" element={<Faq setView={setView} />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/band-roster" element={<BandRoster />} />
           <Route path="/privacy-policy" element={<Privacy />} />
