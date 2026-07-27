@@ -151,6 +151,34 @@ export const faqs: Faq[] = [
     ],
   },
   {
+    id: 'demand-letter-ignored',
+    question: "I sent the demand letter and the venue just ignored it — what happens next?",
+    preview:
+      "You report it to the ATO — free, online, and from that point it's their assessment to chase, not something you have to personally enforce.",
+    answer: [
+      "Give it a short amount of time and double-check nothing's actually landed (see the fund/myGov check above) before treating it as ignored — but once you're confident it has been, the next step isn't a lawyer or a tribunal, it's the ATO's free online tool to report unpaid super from an employer or payer. You don't need to prove anything beyond what you already know: what you were paid, by whom, and when.",
+      "From there it becomes the ATO's matter, not a private dispute you have to run yourself. They can review the payer's obligations and, if it's confirmed, issue a formal assessment for the super guarantee charge (SGC) — the unpaid amount plus interest and an administrative charge — which becomes the payer's legal debt to the ATO rather than an invoice they're choosing to ignore.",
+      "If a payer still doesn't pay after an assessment, the ATO has real enforcement tools: garnishee notices (recovering the debt straight from their bank accounts, trade debtors or merchant facilities), director penalty notices (making a company director personally liable), reporting the debt to a credit bureau, and legal action. If the payer becomes insolvent, the SGC ranks ahead of ordinary unsecured creditors, alongside wages and super entitlements.",
+      "Worth setting expectations honestly: this isn't instant, recovery isn't guaranteed in every case, and it can take time. But it does mean the burden shifts from you personally chasing an unresponsive venue to the ATO chasing a debtor with actual powers to do so.",
+      "If your situation involves an entitlement beyond the standard 12% super guarantee rate — for example something an award or agreement promises on top of it — that specific part is a Fair Work Ombudsman matter rather than an ATO one, and they can pursue it including through a wages and conditions claim.",
+      "Keep a copy of the letter and proof you sent it (email send date, or postage/tracking if posted) — it's useful evidence of when you first raised it, on top of whatever the ATO's own process asks for.",
+    ],
+    sources: [
+      {
+        label: 'ATO — Report unpaid super contributions from my employer',
+        url: 'https://www.ato.gov.au/calculators-and-tools/super-report-unpaid-super-contributions-from-my-employer',
+      },
+      {
+        label: 'ATO — Unpaid super from your employer',
+        url: 'https://www.ato.gov.au/individuals-and-families/super-for-individuals-and-families/super/growing-and-keeping-track-of-your-super/unpaid-super-from-your-employer',
+      },
+      {
+        label: 'Fair Work Ombudsman — Tax and superannuation',
+        url: 'https://www.fairwork.gov.au/pay-and-wages/tax-and-superannuation',
+      },
+    ],
+  },
+  {
     id: 'historical-unpaid-super',
     question: "I've been gigging for years and never seen a cent of super — can I claim it for gigs from before 1 July 2026?",
     preview:
