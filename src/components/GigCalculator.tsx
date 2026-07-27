@@ -94,6 +94,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const [bandMemberCount, setBandMemberCount] = useState('4')
   const [paydayDate, setPaydayDate] = useState(todayIso())
   const [performanceDate, setPerformanceDate] = useState('')
+  const [performanceDateError, setPerformanceDateError] = useState(false)
   const [splitMode, setSplitMode] = useState<'even' | 'custom'>('even')
   const [customShares, setCustomShares] = useState<string[]>([])
   const [customNames, setCustomNames] = useState<string[]>([])
@@ -209,6 +210,12 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const result = useMemo(() => calculateGig(input), [input])
 
   async function handleDownloadCsv() {
+    if (!performanceDate) {
+      setPerformanceDateError(true)
+      return
+    }
+    setPerformanceDateError(false)
+
     let fundLookup: Record<string, { super_fund_name: string; usi: string; member_number: string }> = {}
     if (selectedSavedBand) {
       const members = isLocalMode
@@ -232,8 +239,8 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     }
 
     const header = [
-      'Payday',
       'Performance Date',
+      'Payday',
       'Payee',
       'Type',
       'Description',
@@ -245,16 +252,16 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     ]
     const rows: string[][] = []
     const csvDate = formatDateForCsv(paydayDate)
-    const csvPerformanceDate = performanceDate ? formatDateForCsv(performanceDate) : ''
+    const csvPerformanceDate = formatDateForCsv(performanceDate)
     const superDueDate = formatDateObjectForCsv(result.fundDeadline)
 
     if (result.perMember) {
       for (const member of result.perMember) {
         const fund = fundLookup[member.name]
-        rows.push([csvDate, csvPerformanceDate, member.name, 'Fee', 'Performance fee', member.wage.toFixed(2), '', '', '', ''])
+        rows.push([csvPerformanceDate, csvDate, member.name, 'Fee', 'Performance fee', member.wage.toFixed(2), '', '', '', ''])
         rows.push([
-          csvDate,
           csvPerformanceDate,
+          csvDate,
           member.name,
           'Super',
           'Superannuation guarantee (12%)',
@@ -266,11 +273,11 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
         ])
       }
     } else {
-      rows.push([csvDate, csvPerformanceDate, 'Performer', 'Fee', 'Performance fee', result.labourComponent.toFixed(2), '', '', '', ''])
+      rows.push([csvPerformanceDate, csvDate, 'Performer', 'Fee', 'Performance fee', result.labourComponent.toFixed(2), '', '', '', ''])
       if (result.likelyLiable) {
         rows.push([
-          csvDate,
           csvPerformanceDate,
+          csvDate,
           'Performer',
           'Super',
           'Superannuation guarantee (12%)',
@@ -283,8 +290,8 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       }
       if (Number(nonLabourAmount) > 0) {
         rows.push([
-          csvDate,
           csvPerformanceDate,
+          csvDate,
           'Performer',
           'Reimbursement',
           'Non-labour costs (PA/lighting hire, travel, materials)',
@@ -590,17 +597,29 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-plum-200">Performance date (optional)</label>
+            <label className="block text-sm font-medium text-plum-200">Performance date</label>
             <input
               type="date"
+              required
               value={performanceDate}
-              onChange={(e) => setPerformanceDate(e.target.value)}
-              className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
+              onChange={(e) => {
+                setPerformanceDate(e.target.value)
+                if (e.target.value) setPerformanceDateError(false)
+              }}
+              className={`mt-1.5 w-full rounded-lg border bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400 ${
+                performanceDateError ? 'border-red-400' : 'border-plum-600'
+              }`}
             />
-            <p className="mt-1.5 text-xs text-plum-400">
-              Not used in the calculation — just makes it easier to match this record back to the
-              actual gig later, since payday often lands well after the show.
-            </p>
+            {performanceDateError ? (
+              <p className="mt-1.5 text-xs text-red-400">
+                Required before downloading the CSV — enter the date of the actual gig.
+              </p>
+            ) : (
+              <p className="mt-1.5 text-xs text-plum-400">
+                Not used in the calculation — just makes it easier to match this record back to the
+                actual gig later, since payday often lands well after the show.
+              </p>
+            )}
           </div>
         </Card>
 
