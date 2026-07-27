@@ -10,6 +10,7 @@ import { useOnceLock } from '../lib/useOnceLock'
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient'
 import { localBandStore } from '../lib/localBandStore'
 import { downloadCsv, formatDateForCsv, formatDateObjectForCsv } from '../lib/csvExport'
+import { downloadDemandLetterPdf } from '../lib/letterPdf'
 
 const currency = new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' })
 const MAX_BAND_MEMBERS = 30
@@ -100,6 +101,10 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const [customNames, setCustomNames] = useState<string[]>([])
   const [savedBands, setSavedBands] = useState<SavedBand[]>([])
   const [selectedSavedBand, setSelectedSavedBand] = useState('')
+  const [letterSenderName, setLetterSenderName] = useState('')
+  const [letterSenderEmail, setLetterSenderEmail] = useState('')
+  const [letterVenueName, setLetterVenueName] = useState('')
+  const [letterErrors, setLetterErrors] = useState<{ senderName?: boolean; venueName?: boolean; performanceDate?: boolean }>({})
 
   const feeExGst =
     gstMode === 'inclusive' ? (Number(totalFee) || 0) / (1 + GST_RATE) : Number(totalFee) || 0
@@ -309,6 +314,27 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     }
 
     downloadCsv(`encore-super-gig-${paydayDate}.csv`, header, rows)
+  }
+
+  async function handleDownloadLetter() {
+    const errors: typeof letterErrors = {}
+    if (!letterSenderName.trim()) errors.senderName = true
+    if (!letterVenueName.trim()) errors.venueName = true
+    if (!performanceDate) errors.performanceDate = true
+    setLetterErrors(errors)
+    if (Object.keys(errors).length > 0) return
+
+    await downloadDemandLetterPdf({
+      senderName: letterSenderName.trim(),
+      senderEmail: letterSenderEmail.trim() || undefined,
+      venueName: letterVenueName.trim(),
+      performanceDate,
+      paydayDate,
+      fundDeadline: result.fundDeadline,
+      labourComponent: result.labourComponent,
+      superOwed: result.superOwed,
+      isBand: Boolean(result.perMember),
+    })
   }
 
   if (checkingFreeUse) {
@@ -604,7 +630,10 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
               value={performanceDate}
               onChange={(e) => {
                 setPerformanceDate(e.target.value)
-                if (e.target.value) setPerformanceDateError(false)
+                if (e.target.value) {
+                  setPerformanceDateError(false)
+                  setLetterErrors((prev) => ({ ...prev, performanceDate: false }))
+                }
               }}
               className={`mt-1.5 w-full rounded-lg border bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400 ${
                 performanceDateError ? 'border-red-400' : 'border-plum-600'
@@ -743,6 +772,71 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                 import — Bills import needs contact and account codes already set up on your side, which a
                 downloaded file can't know.
               </p>
+            </div>
+
+            <div className="mt-5 border-t border-plum-700 pt-4">
+              <p className="text-sm font-medium text-plum-200">Unpaid super? Send a letter</p>
+              <p className="mt-1.5 text-xs text-plum-400">
+                Generates a factual payment-request letter for this booking, citing the actual rules —
+                not a legal threat. Fill these in to enable it.
+              </p>
+
+              <div className="mt-3 space-y-3">
+                <div>
+                  <label className="block text-xs font-medium text-plum-300">Your name / business</label>
+                  <input
+                    type="text"
+                    value={letterSenderName}
+                    onChange={(e) => {
+                      setLetterSenderName(e.target.value)
+                      if (e.target.value.trim()) setLetterErrors((prev) => ({ ...prev, senderName: false }))
+                    }}
+                    placeholder="e.g. Alex Rivera"
+                    className={`mt-1 w-full rounded-lg border bg-plum-950 px-3 py-1.5 text-sm text-plum-100 outline-none focus:border-copper-400 ${
+                      letterErrors.senderName ? 'border-red-400' : 'border-plum-600'
+                    }`}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-plum-300">Your email (optional)</label>
+                  <input
+                    type="email"
+                    value={letterSenderEmail}
+                    onChange={(e) => setLetterSenderEmail(e.target.value)}
+                    placeholder="e.g. alex@example.com"
+                    className="mt-1 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-1.5 text-sm text-plum-100 outline-none focus:border-copper-400"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-plum-300">Venue / payer name</label>
+                  <input
+                    type="text"
+                    value={letterVenueName}
+                    onChange={(e) => {
+                      setLetterVenueName(e.target.value)
+                      if (e.target.value.trim()) setLetterErrors((prev) => ({ ...prev, venueName: false }))
+                    }}
+                    placeholder="e.g. The Rocket Bar"
+                    className={`mt-1 w-full rounded-lg border bg-plum-950 px-3 py-1.5 text-sm text-plum-100 outline-none focus:border-copper-400 ${
+                      letterErrors.venueName ? 'border-red-400' : 'border-plum-600'
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {(letterErrors.senderName || letterErrors.venueName || letterErrors.performanceDate) && (
+                <p className="mt-2 text-xs text-red-400">
+                  Fill in your name, the venue/payer name{!performanceDate ? ', and the performance date above' : ''} to
+                  generate the letter.
+                </p>
+              )}
+
+              <button
+                onClick={handleDownloadLetter}
+                className="mt-3 w-full rounded-lg border border-plum-600 px-4 py-2 text-sm font-medium text-plum-200 hover:border-copper-400"
+              >
+                Download demand letter (PDF)
+              </button>
             </div>
           </Card>
 
