@@ -93,6 +93,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const [bandleaderShareInput, setBandleaderShareInput] = useState('')
   const [bandMemberCount, setBandMemberCount] = useState('4')
   const [paydayDate, setPaydayDate] = useState(todayIso())
+  const [performanceDate, setPerformanceDate] = useState('')
   const [splitMode, setSplitMode] = useState<'even' | 'custom'>('even')
   const [customShares, setCustomShares] = useState<string[]>([])
   const [customNames, setCustomNames] = useState<string[]>([])
@@ -232,6 +233,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
 
     const header = [
       'Payday',
+      'Performance Date',
       'Payee',
       'Type',
       'Description',
@@ -243,14 +245,16 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     ]
     const rows: string[][] = []
     const csvDate = formatDateForCsv(paydayDate)
+    const csvPerformanceDate = performanceDate ? formatDateForCsv(performanceDate) : ''
     const superDueDate = formatDateObjectForCsv(result.fundDeadline)
 
     if (result.perMember) {
       for (const member of result.perMember) {
         const fund = fundLookup[member.name]
-        rows.push([csvDate, member.name, 'Fee', 'Performance fee', member.wage.toFixed(2), '', '', '', ''])
+        rows.push([csvDate, csvPerformanceDate, member.name, 'Fee', 'Performance fee', member.wage.toFixed(2), '', '', '', ''])
         rows.push([
           csvDate,
+          csvPerformanceDate,
           member.name,
           'Super',
           'Superannuation guarantee (12%)',
@@ -262,10 +266,11 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
         ])
       }
     } else {
-      rows.push([csvDate, 'Performer', 'Fee', 'Performance fee', result.labourComponent.toFixed(2), '', '', '', ''])
+      rows.push([csvDate, csvPerformanceDate, 'Performer', 'Fee', 'Performance fee', result.labourComponent.toFixed(2), '', '', '', ''])
       if (result.likelyLiable) {
         rows.push([
           csvDate,
+          csvPerformanceDate,
           'Performer',
           'Super',
           'Superannuation guarantee (12%)',
@@ -279,6 +284,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       if (Number(nonLabourAmount) > 0) {
         rows.push([
           csvDate,
+          csvPerformanceDate,
           'Performer',
           'Reimbursement',
           'Non-labour costs (PA/lighting hire, travel, materials)',
@@ -292,7 +298,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
     }
 
     if (result.gstAmount > 0.01) {
-      rows.push([csvDate, 'Payer', 'GST', 'GST collected on invoice', result.gstAmount.toFixed(2), '', '', '', ''])
+      rows.push([csvDate, csvPerformanceDate, 'Payer', 'GST', 'GST collected on invoice', result.gstAmount.toFixed(2), '', '', '', ''])
     }
 
     downloadCsv(`encore-super-gig-${paydayDate}.csv`, header, rows)
@@ -581,6 +587,20 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
               onChange={(e) => setPaydayDate(e.target.value)}
               className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-plum-200">Performance date (optional)</label>
+            <input
+              type="date"
+              value={performanceDate}
+              onChange={(e) => setPerformanceDate(e.target.value)}
+              className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
+            />
+            <p className="mt-1.5 text-xs text-plum-400">
+              Not used in the calculation — just makes it easier to match this record back to the
+              actual gig later, since payday often lands well after the show.
+            </p>
           </div>
         </Card>
 
