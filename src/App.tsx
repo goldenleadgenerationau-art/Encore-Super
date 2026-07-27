@@ -14,6 +14,7 @@ import { Pricing } from './components/Pricing'
 import { BandRoster } from './components/BandRoster'
 import { Privacy } from './components/Privacy'
 import { Terms } from './components/Terms'
+import { TestimonialWidget } from './components/TestimonialWidget'
 
 function AppRoutes() {
   const navigate = useNavigate()
@@ -41,6 +42,7 @@ function AppRoutes() {
         </Routes>
       </main>
       <Footer setView={setView} />
+      <TestimonialWidget />
     </div>
   )
 }
