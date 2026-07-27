@@ -35,9 +35,17 @@ export function Home({ setView }: { setView: (v: View) => void }) {
           Super, sorted — one gig at a time.
         </h1>
         <p className="mx-auto mt-6 max-w-2xl rounded-2xl border border-copper-400/30 bg-copper-400/5 px-5 py-4 text-base font-medium text-plum-100 sm:text-lg">
-          Did you know a venue legally owes you 12% super on top of your performance fee —
-          even with an ABN? If you're not tracking it per gig, most musicians never see a
-          cent of it.
+          According to a{' '}
+          <a
+            href="https://www.meaa.org/mediaroom/insecure-work-and-poor-pay-forces-musicians-to-hang-up-their-instruments-new-survey/"
+            target="_blank"
+            rel="noreferrer"
+            className="text-copper-300 underline decoration-copper-400/50 hover:text-copper-200"
+          >
+            Media, Entertainment &amp; Arts Alliance (MEAA) survey
+          </a>
+          , 82% of Australian musicians have never received a single cent of superannuation
+          for a gig — usually because tracking it is too hard.
         </p>
         <p className="mx-auto mt-5 max-w-2xl text-lg text-plum-400">
           Payday Super changed the rules from 1 July 2026. Encore Super turns the ATO
