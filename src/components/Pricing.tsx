@@ -15,6 +15,7 @@ const included = [
   'Payday Deadline Tracker for every booking',
   'A saved Band Roster so you never re-type member details for a gig again',
   'CSV export of every calculation, ready for your accounting software',
+  'One-click unpaid super demand letter (PDF) for any booking — cites the actual rules, ready to send',
   'Rule updates as ATO/Fair Work guidance changes, included for as long as you subscribe',
 ]
 

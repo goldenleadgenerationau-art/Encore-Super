@@ -82,18 +82,29 @@ export function Home({ setView }: { setView: (v: View) => void }) {
           ))}
         </div>
 
-        <Card className="mt-5 cursor-pointer border-copper-400/30 bg-gradient-to-b from-plum-900 to-plum-900/40 transition-colors hover:border-copper-400/50">
-          <button onClick={() => setView('calculator')} className="w-full text-left sm:flex sm:items-center sm:justify-between sm:gap-6">
-            <div>
+        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+          <Card className="cursor-pointer border-copper-400/30 bg-gradient-to-b from-plum-900 to-plum-900/40 transition-colors hover:border-copper-400/50">
+            <button onClick={() => setView('calculator')} className="w-full text-left">
               <h2 className="font-display text-lg text-plum-100">Export straight to your books</h2>
-              <p className="mt-2 max-w-2xl text-sm text-plum-400">
+              <p className="mt-2 text-sm text-plum-400">
                 Every calculation comes with a one-click CSV download — fee, super, and GST line items, ready
                 to import into your accounting software. A plain file you review yourself, not a live sync.
               </p>
-            </div>
-            <span className="mt-3 inline-block shrink-0 text-sm text-copper-400 sm:mt-0">Try the calculator →</span>
-          </button>
-        </Card>
+              <span className="mt-3 inline-block text-sm text-copper-400">Try the calculator →</span>
+            </button>
+          </Card>
+
+          <Card className="cursor-pointer border-copper-400/30 bg-gradient-to-b from-plum-900 to-plum-900/40 transition-colors hover:border-copper-400/50">
+            <button onClick={() => setView('calculator')} className="w-full text-left">
+              <h2 className="font-display text-lg text-plum-100">Didn't get paid? We'll write the letter</h2>
+              <p className="mt-2 text-sm text-plum-400">
+                Generate a factual payment-request letter for any booking, citing the actual super rules —
+                not a legal threat, just the numbers and the law, ready to send as a PDF.
+              </p>
+              <span className="mt-3 inline-block text-sm text-copper-400">Try the calculator →</span>
+            </button>
+          </Card>
+        </div>
       </section>
 
       <section className="border-t border-plum-800 bg-plum-900/40 px-6 py-16">
