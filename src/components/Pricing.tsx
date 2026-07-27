@@ -261,6 +261,11 @@ export function Pricing() {
 
       <PlanSelector billingInterval={billingInterval} setBillingInterval={setBillingInterval} />
 
+      <p className="mt-4 text-sm text-plum-400">
+        Less than the price of a pint at the venue you're playing — and it only has to
+        catch one unpaid gig to pay for the whole year.
+      </p>
+
       <Card className="mt-8 text-left">
         <ul className="space-y-3 text-sm text-plum-200">
           {included.map((item) => (
