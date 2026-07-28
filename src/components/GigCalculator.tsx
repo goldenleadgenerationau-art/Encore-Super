@@ -761,7 +761,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                 onClick={handleDownloadCsv}
                 className="w-full rounded-lg border border-plum-600 px-4 py-2 text-sm font-medium text-plum-200 hover:border-copper-400"
               >
-                Download CSV for your accounting software
+                Download CSV for your accounting records
               </button>
               <p className="mt-2 text-xs text-plum-400">
                 A plain summary of this calculation — fee, super, and GST line items. Nothing is sent anywhere;
