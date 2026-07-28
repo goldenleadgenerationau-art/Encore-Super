@@ -2,8 +2,22 @@
 // `feedback` table. Sends an internal notification to the sales inbox via
 // Resend — best-effort only, a failure here never blocks or errors out the
 // user's actual submission (the row is already saved by that point).
-import { requiredEnv } from '../_shared/square.ts'
-import { corsHeaders } from '../_shared/cors.ts'
+//
+// Deliberately self-contained (no imports from ../_shared) so it can be
+// pasted directly into the Supabase Dashboard's single-file function editor,
+// which can't resolve relative imports into a sibling function's folder.
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+}
+
+function requiredEnv(name: string): string {
+  const value = Deno.env.get(name)
+  if (!value) throw new Error(`${name} is not configured`)
+  return value
+}
 
 interface NotifyBody {
   rating: number
