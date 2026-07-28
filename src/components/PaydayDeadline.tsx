@@ -14,7 +14,7 @@ export function PaydayDeadline({ setView }: { setView: (v: View) => void }) {
   const [paydayDate, setPaydayDate] = useState(todayIso())
   const [interacted, setInteracted] = useState(false)
 
-  const deadline = useMemo(() => {
+  const { date: deadline, usedHolidayCalendar } = useMemo(() => {
     const start = paydayDate ? new Date(paydayDate) : new Date()
     return addBusinessDays(start, 7)
   }, [paydayDate])
@@ -64,9 +64,9 @@ export function PaydayDeadline({ setView }: { setView: (v: View) => void }) {
               <p className="mt-2 text-sm text-plum-400">This date has already passed</p>
             )}
             <p className="mt-4 text-xs text-plum-400">
-              This counts weekdays only. It doesn't subtract national or state public
-              holidays, so treat it as the latest possible date and pay a little earlier
-              where you can.
+              {usedHolidayCalendar
+                ? "Accounts for weekends and public holidays that apply to the whole of any Australian state or territory (the ATO's actual rule — a holiday anywhere counts, even outside your own state). A handful of regional-only holidays (e.g. Melbourne Cup, Royal Hobart Show) aren't included, so treat this as the latest possible date and pay a little earlier where you can."
+                : "This counts weekdays only — the public holiday calendar behind this tool currently covers 1 July 2026 to the end of 2027, and this date falls outside that range. Treat it as the latest possible date and pay a little earlier where you can."}
             </p>
           </div>
         </Card>

@@ -136,7 +136,7 @@ export function calculateGig(input: GigInput): GigResult {
   }
 
   const paydayDate = input.paydayDate ? new Date(input.paydayDate) : new Date()
-  const fundDeadline = addBusinessDays(paydayDate, 7)
+  const fundDeadline = addBusinessDays(paydayDate, 7).date
 
   if (likelyLiable) {
     notes.push(
