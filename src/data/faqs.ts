@@ -9,6 +9,30 @@ export interface Faq {
 
 export const faqs: Faq[] = [
   {
+    id: 'wholly-principally-labour-test',
+    question:
+      "Does the \"50% / wholly or principally for labour\" test that applies to other contractors also apply to musicians?",
+    preview:
+      "No — that test is for ordinary contractors under a different part of the law. Performers are covered by a separate rule that isn't limited that way, so you can't reason your way out of super just because most of your fee covers gear, travel or insurance.",
+    answer: [
+      'Ordinary contractors only count as "employees" for super purposes if their contract is "wholly or principally" for their labour — in practice, more than 50% of the value has to genuinely be their own personal work, not equipment, materials or other costs. That\'s section 12(3) of the Superannuation Guarantee (Administration) Act 1992.',
+      "Performers don't get tested against that rule at all. Section 12(8) — the rule this whole site is built around — is a separate, broader definition, and the ATO's own ruling on this says so explicitly: the performer paragraphs \"are not limited in the way that subsection 12(3) is limited to contracts wholly or principally for a person's labour.\" Being paid to perform is enough on its own — there's no 50% threshold to clear, no matter how much of your fee is eaten up by PA hire, travel, insurance or anything else.",
+      "That doesn't mean your whole fee is automatically superable either, though. Super is still only ever calculated on the genuinely labour part. If your fee bundles in real non-labour costs — PA or lighting hire, travel, materials — that portion can be excluded, but only if it's actually itemised as its own line in the contract or invoice.",
+      "This cuts both ways, and it's worth knowing which way it cuts for you: if nothing is itemised — just one lump \"performance fee\" — the ATO's default position is to treat the entire amount as labour, which makes the whole thing superable. Not itemising doesn't get you out of super on the equipment-adjacent costs; it does the opposite.",
+      "Net effect: whether super is owed at all doesn't depend on any majority-labour test — you're covered the moment you're paid to perform. What super is calculated on depends entirely on itemisation, in either direction.",
+    ],
+    sources: [
+      {
+        label: 'ATO — Super for independent contractors',
+        url: 'https://www.ato.gov.au/businesses-and-organisations/super-for-employers/work-out-if-you-have-to-pay-super/super-for-independent-contractors',
+      },
+      {
+        label: 'ATO — Super for sportspeople, performers, film makers and related activities',
+        url: 'https://www.ato.gov.au/businesses-and-organisations/super-for-employers/work-out-if-you-have-to-pay-super/super-for-sportspeople-performers-film-makers-and-related-activities',
+      },
+    ],
+  },
+  {
     id: 'bandleader-pay-band-super',
     question:
       "I'm a bandleader (registrant) — how do I actually pay super to the rest of the band (contractor)? Do I need accounting software?",
