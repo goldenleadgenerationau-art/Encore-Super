@@ -111,7 +111,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
   const gstAmount = gstMode === 'exclusive' ? (Number(totalFee) || 0) * GST_RATE : gstMode === 'inclusive' ? (Number(totalFee) || 0) - feeExGst : 0
   const labourComponent = Math.max(0, feeExGst - (Number(nonLabourAmount) || 0))
   const memberCount = Math.min(MAX_BAND_MEMBERS, Math.max(1, Number(bandMemberCount) || 1))
-  const bandleaderOnly = perspective === 'payer' && bandContractWith === 'bandleaderBusiness'
+  const bandleaderOnly = paidAs === 'bandRepresentative' && bandContractWith === 'bandleaderBusiness'
   const bandleaderShareAmount = Math.min(Math.max(0, Number(bandleaderShareInput) || 0), labourComponent)
   const remainingToAllocate = Math.max(
     0,
@@ -187,7 +187,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
       nonLabourAmount: Number(nonLabourAmount) || 0,
       paidAs,
       perspective,
-      bandContractWith: perspective === 'payer' ? bandContractWith : undefined,
+      bandContractWith: paidAs === 'bandRepresentative' ? bandContractWith : undefined,
       bandleaderShare: bandleaderOnly ? bandleaderShareAmount : undefined,
       bandMemberCount: memberCount,
       bandCustomShares:
@@ -473,24 +473,33 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
             </select>
           </div>
 
-          {paidAs === 'bandRepresentative' && perspective === 'payer' && (
+          {paidAs === 'bandRepresentative' && (
             <div>
               <label className="block text-sm font-medium text-plum-200">
-                Is your booking contract with the whole band, or just with the bandleader's business?
+                {perspective === 'payer'
+                  ? "Is your booking contract with the whole band, or just with the bandleader's business?"
+                  : "Is the venue's booking contract with the whole band, or just with your own business?"}
               </label>
               <select
                 value={bandContractWith}
                 onChange={(e) => setBandContractWith(e.target.value as BandContractWith)}
                 className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
               >
-                <option value="wholeBand">The whole band — named as the act, or as individual members</option>
+                <option value="wholeBand">
+                  {perspective === 'payer'
+                    ? 'The whole band — named as the act, or as individual members'
+                    : 'The whole band — we\'re named as the act, or as individual members'}
+                </option>
                 <option value="bandleaderBusiness">
-                  Just the bandleader's own business — they arrange the rest of the band themselves
+                  {perspective === 'payer'
+                    ? "Just the bandleader's own business — they arrange the rest of the band themselves"
+                    : 'Just my own business — I arrange the rest of the band myself'}
                 </option>
               </select>
               <p className="mt-1.5 text-xs text-plum-400">
-                This changes what you're calculated as owing: super across the whole band, or just the
-                amount attributable to the bandleader.
+                {perspective === 'payer'
+                  ? "This changes what you're calculated as owing: super across the whole band, or just the amount attributable to the bandleader."
+                  : "This changes what the venue is calculated as owing you: super across the whole band, or just your own share as bandleader."}
               </p>
             </div>
           )}
@@ -498,8 +507,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
           {bandleaderOnly && (
             <div>
               <label className="block text-sm font-medium text-plum-200">
-                Of the {currency.format(labourComponent)} fee, how much is the bandleader's own personal
-                share?
+                {perspective === 'payer'
+                  ? `Of the ${currency.format(labourComponent)} fee, how much is the bandleader's own personal share?`
+                  : `Of the ${currency.format(labourComponent)} fee, how much is your own personal share?`}
               </label>
               <input
                 type="number"
@@ -511,9 +521,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                 className="mt-1.5 w-full rounded-lg border border-plum-600 bg-plum-950 px-3 py-2 text-plum-100 outline-none focus:border-copper-400"
               />
               <p className="mt-1.5 text-xs text-plum-400">
-                The rest ({currency.format(Math.max(0, labourComponent - bandleaderShareAmount))}) is money
-                the bandleader passes on to the other band members — only their own share is superable on
-                your side.
+                {perspective === 'payer'
+                  ? `The rest (${currency.format(Math.max(0, labourComponent - bandleaderShareAmount))}) is money the bandleader passes on to the other band members — only their own share is superable on your side.`
+                  : `The rest (${currency.format(Math.max(0, labourComponent - bandleaderShareAmount))}) is money you pass on to the other band members — only your own share is superable from what the venue owes you.`}
               </p>
             </div>
           )}
@@ -660,7 +670,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
             </p>
             <p className="mt-2 text-sm text-plum-400">
               {bandleaderOnly
-                ? `on the bandleader's own share of ${currency.format(bandleaderShareAmount)}, at 12%`
+                ? perspective === 'payer'
+                  ? `on the bandleader's own share of ${currency.format(bandleaderShareAmount)}, at 12%`
+                  : `on your own share of ${currency.format(bandleaderShareAmount)}, at 12%`
                 : `on a labour component of ${currency.format(result.labourComponent)}, at 12%`}
             </p>
             {result.gstAmount > 0.01 && (
@@ -697,7 +709,9 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
 
             {!result.perMember && bandleaderOnly && (
               <div className="mt-5 border-t border-plum-700 pt-4">
-                <p className="text-sm font-medium text-plum-200">The bandleader's breakdown</p>
+                <p className="text-sm font-medium text-plum-200">
+                  {perspective === 'payer' ? "The bandleader's breakdown" : 'Your breakdown'}
+                </p>
                 <div className="mt-2 divide-y divide-plum-700/60 rounded-lg border border-plum-700">
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                     <span className="text-plum-200">Whole fee paid</span>
@@ -705,7 +719,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                   </div>
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                     <span className="text-plum-200">
-                      Bandleader's own share
+                      {perspective === 'payer' ? "Bandleader's own share" : 'Your own share'}
                       <span className="ml-2 text-xs text-plum-400">(superable)</span>
                     </span>
                     <span className="text-plum-200">{currency.format(bandleaderShareAmount)}</span>
@@ -715,7 +729,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                     <span className="text-copper-300">{currency.format(result.superOwed)}</span>
                   </div>
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-semibold">
-                    <span className="text-plum-100">Total cost</span>
+                    <span className="text-plum-100">{perspective === 'payer' ? 'Total cost' : 'Total from venue'}</span>
                     <span className="text-copper-300">{currency.format(result.labourComponent + result.superOwed)}</span>
                   </div>
                 </div>

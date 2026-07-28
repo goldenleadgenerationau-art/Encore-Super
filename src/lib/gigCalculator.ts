@@ -68,9 +68,7 @@ export function calculateGig(input: GigInput): GigResult {
   // the band becomes the bandleader's problem to sort out, not the
   // venue's. See the BandContractWith type for the full reasoning.
   const bandleaderOnly =
-    input.paidAs === 'bandRepresentative' &&
-    input.perspective === 'payer' &&
-    input.bandContractWith === 'bandleaderBusiness'
+    input.paidAs === 'bandRepresentative' && input.bandContractWith === 'bandleaderBusiness'
 
   // In bandleaderOnly mode, only the bandleader's own personal cut of the
   // lump sum is superable — the rest is money passing through to the other
@@ -124,15 +122,27 @@ export function calculateGig(input: GigInput): GigResult {
   }
 
   if (bandleaderOnly && likelyLiable) {
-    notes.push(
-      `Because your booking contract is with the bandleader's own business — not the whole band — your super obligation is generally limited to the bandleader's own share of the fee (${bandleaderShare.toFixed(2)}), not the full amount you're paying out. The rest is money the bandleader passes on to the other members, not their own earnings.`
-    )
-    notes.push(
-      "The bandleader then becomes responsible, as the one engaging the rest of the band, for paying their super out of what they're paid — that part isn't covered by this calculation."
-    )
-    notes.push(
-      "Get this contract structure confirmed in writing before the gig. If the booking is later treated as being with the whole band rather than just the bandleader's business, your liability could extend to the other members' super too."
-    )
+    if (input.perspective === 'payer') {
+      notes.push(
+        `Because your booking contract is with the bandleader's own business — not the whole band — your super obligation is generally limited to the bandleader's own share of the fee (${bandleaderShare.toFixed(2)}), not the full amount you're paying out. The rest is money the bandleader passes on to the other members, not their own earnings.`
+      )
+      notes.push(
+        "The bandleader then becomes responsible, as the one engaging the rest of the band, for paying their super out of what they're paid — that part isn't covered by this calculation."
+      )
+      notes.push(
+        "Get this contract structure confirmed in writing before the gig. If the booking is later treated as being with the whole band rather than just the bandleader's business, your liability could extend to the other members' super too."
+      )
+    } else {
+      notes.push(
+        `Because the venue's contract is with your own business — not the whole band — what they owe you is generally limited to your own personal share of the fee (${bandleaderShare.toFixed(2)}), not the full amount they're paying out. The rest is money you pass on to the other members, not your own earnings.`
+      )
+      notes.push(
+        "You then become responsible, as the one engaging the rest of the band, for paying their super out of what you're paid — that part isn't covered by this calculation."
+      )
+      notes.push(
+        "Get this contract structure confirmed in writing before the gig. If the booking is later treated as being with the whole band rather than just your own business, the venue's liability could extend to the other members' super too."
+      )
+    }
   }
 
   const paydayDate = input.paydayDate ? new Date(input.paydayDate) : new Date()
