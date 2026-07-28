@@ -715,8 +715,17 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                 <div className="mt-2 divide-y divide-plum-700/60 rounded-lg border border-plum-700">
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                     <span className="text-plum-200">Whole fee paid</span>
-                    <span className="text-plum-200">{currency.format(result.labourComponent)}</span>
+                    <span className="text-plum-200">{currency.format(result.feeExGst)}</span>
                   </div>
+                  {Number(nonLabourAmount) > 0 && (
+                    <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
+                      <span className="text-plum-400">
+                        Non-labour items
+                        <span className="ml-2 text-xs">(PA/lighting, travel — not superable)</span>
+                      </span>
+                      <span className="text-plum-400">-{currency.format(Number(nonLabourAmount) || 0)}</span>
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm">
                     <span className="text-plum-200">
                       {perspective === 'payer' ? "Bandleader's own share" : 'Your own share'}
@@ -730,7 +739,7 @@ export function GigCalculator({ setView }: { setView: (v: View) => void }) {
                   </div>
                   <div className="flex items-center justify-between gap-3 px-3 py-2 text-sm font-semibold">
                     <span className="text-plum-100">{perspective === 'payer' ? 'Total cost' : 'Total from venue'}</span>
-                    <span className="text-copper-300">{currency.format(result.labourComponent + result.superOwed)}</span>
+                    <span className="text-copper-300">{currency.format(result.feeExGst + result.superOwed)}</span>
                   </div>
                 </div>
               </div>
