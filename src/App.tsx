@@ -15,6 +15,7 @@ import { Pricing } from './components/Pricing'
 import { BandRoster } from './components/BandRoster'
 import { Privacy } from './components/Privacy'
 import { Terms } from './components/Terms'
+import { FeedbackWidget } from './components/FeedbackWidget'
 
 function AppRoutes() {
   const navigate = useNavigate()
@@ -43,6 +44,7 @@ function AppRoutes() {
         </Routes>
       </main>
       <Footer setView={setView} />
+      <FeedbackWidget />
     </div>
   )
 }
