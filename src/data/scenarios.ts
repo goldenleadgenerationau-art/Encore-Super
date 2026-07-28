@@ -106,6 +106,18 @@ export const scenarios: Scenario[] = [
     premium: true,
   },
   {
+    id: 'band-partnership',
+    title: "Your band is a registered partnership",
+    situation: 'The band itself (not any one member) is registered as a formal partnership — you lodge a partnership tax return and split net income between partners, and that\'s who invoices the venue.',
+    whoOwes: 'Genuinely unclear — this sits in the same grey area as invoicing through a company, for a different reason.',
+    keyPoints: [
+      "The ATO's own guidance on the general contractor rules (SGR 2005/1) says payments made to a partnership — rather than to an individual — generally don't create an employer/employee relationship, because a partner can't be an \"employee\" of the partnership, and the same reasoning is usually applied to whoever the partnership contracts with.",
+      "But that reasoning leans on the ordinary contractor test requiring a contract \"wholly or principally for a person's labour\" — and the ATO's own ruling notes the s.12(8) performer rule this whole site is built around isn't limited that way. So it's a genuinely open question whether being a partnership shields a band from s.12(8) the same way it shields ordinary contractors.",
+      "This isn't settled either way — don't assume you're covered, and don't assume you're not. Get this specific situation checked with a registered tax agent or the ATO before relying on it.",
+    ],
+    premium: true,
+  },
+  {
     id: 'residency',
     title: 'Regular weekly residency at the same venue',
     situation: 'You play the same venue every week on an ongoing arrangement.',
