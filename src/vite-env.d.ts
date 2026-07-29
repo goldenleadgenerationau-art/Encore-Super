@@ -32,4 +32,5 @@ interface Window {
   Square?: {
     payments: (appId: string, locationId: string) => SquarePayments
   }
+  gtag?: (...args: unknown[]) => void
 }

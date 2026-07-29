@@ -39,6 +39,19 @@ const plans: Record<
   },
 }
 
+const planValue: Record<BillingInterval, number> = { yearly: 99, monthly: 12.99 }
+
+// Fires the Google Ads "Subscription started" conversion — see
+// AW-18119704931/NiuyCMqQo9gcEOOCk8BD in the Google Ads account. The base
+// Google tag itself lives in index.html and loads on every page.
+function reportSubscriptionConversion(billingInterval: BillingInterval) {
+  window.gtag?.('event', 'conversion', {
+    send_to: 'AW-18119704931/NiuyCMqQo9gcEOOCk8BD',
+    value: planValue[billingInterval],
+    currency: 'AUD',
+  })
+}
+
 function PlanSelector({
   billingInterval,
   setBillingInterval,
@@ -140,6 +153,7 @@ function SquareCheckoutForm({
         return
       }
       await refresh()
+      reportSubscriptionConversion(billingInterval)
       onSuccess()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Checkout failed')
