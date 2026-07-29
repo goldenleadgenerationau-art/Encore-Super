@@ -10,6 +10,7 @@ export type View =
   | 'roster'
   | 'privacy'
   | 'terms'
+  | 'landing'
 
 export type PayerType = 'venue' | 'agentOrPromoter' | 'privateClient' | 'anotherMusician'
 

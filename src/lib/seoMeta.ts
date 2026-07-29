@@ -91,6 +91,18 @@ export const ROUTES: RouteMeta[] = [
     title: 'Terms of Service — Encore Super',
     description: 'The terms that apply when you use Encore Super.',
   },
+  {
+    view: 'landing',
+    path: '/for-musicians',
+    title: 'Free Gig Super Calculator for Australian Musicians | Encore Super',
+    description:
+      "Find out exactly what superannuation a gig owes you — and when it must land under Australia's new Payday Super rules. Try the free calculator built for gigging musicians.",
+    // Ad/campaign landing page — deliberately not competing with the
+    // homepage for the same organic search terms, but this entry still
+    // has to exist so the social-crawler bot middleware (see middleware.ts)
+    // serves the right OG/title tags for FB/IG ad link previews.
+    noindex: true,
+  },
 ]
 
 export const VIEW_TO_PATH: Record<View, string> = Object.fromEntries(

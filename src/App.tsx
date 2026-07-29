@@ -5,6 +5,7 @@ import { Seo } from './components/Seo'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { Home } from './components/Home'
+import { LandingPage } from './components/LandingPage'
 import { GigCalculator } from './components/GigCalculator'
 import { PaydayDeadline } from './components/PaydayDeadline'
 import { CoverageCheck } from './components/CoverageCheck'
@@ -22,6 +23,11 @@ function AppRoutes() {
   const location = useLocation()
   const meta = routeMetaForPath(location.pathname)
   const setView = (v: View) => navigate(VIEW_TO_PATH[v])
+
+  // Standalone ad/campaign landing page — no app header/nav, own chrome.
+  if (location.pathname === '/for-musicians') {
+    return <LandingPage />
+  }
 
   return (
     <div className="flex min-h-svh flex-col">
